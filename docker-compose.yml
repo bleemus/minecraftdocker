@@ -5,7 +5,7 @@ services:
     environment:
       EULA: "TRUE"
     network_mode: "host"
-    restart: "unless-stopped"
+    restart: "always"
     volumes:
       - "/home/bleemus/mcdata/server.properties:/bedrock-server/server.properties"
       - "/home/bleemus/mcdata/worlds/:/bedrock-server/worlds"
