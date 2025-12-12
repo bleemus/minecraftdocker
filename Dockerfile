@@ -19,7 +19,11 @@ RUN set -eux; \
   unzip -q /tmp/bedrock-server.zip -d /bedrock-server; \
   rm /tmp/bedrock-server.zip
 
-RUN useradd -m -u 1000 minecraft && \
+ARG USER_ID=1000
+ARG GROUP_ID=1000
+
+RUN groupadd -g ${GROUP_ID} minecraft && \
+  useradd -m -u ${USER_ID} -g minecraft minecraft && \
   chown -R minecraft:minecraft /bedrock-server
 
 EXPOSE 19132/udp

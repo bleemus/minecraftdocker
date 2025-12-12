@@ -1,11 +1,18 @@
 services:
   minecraft:
+    build:
+      context: .
+      args:
+        USER_ID: ${USER_ID:-1000}
+        GROUP_ID: ${GROUP_ID:-1000}
     image: "minecraft:latest"
     container_name: "minecraft"
     environment:
       EULA: "TRUE"
     network_mode: "host"
     restart: "always"
+    stop_signal: SIGTERM
+    stop_grace_period: 30s
     volumes:
-      - "/home/bleemus/mcdata/server.properties:/bedrock-server/server.properties"
-      - "/home/bleemus/mcdata/worlds/:/bedrock-server/worlds"
+      - "${MCDATA_PATH:-/home/bleemus/mcdata}/server.properties:/bedrock-server/server.properties"
+      - "${MCDATA_PATH:-/home/bleemus/mcdata}/worlds/:/bedrock-server/worlds"

@@ -26,6 +26,8 @@ The docker-compose configuration mounts two critical directories from the host:
 
 Uses `network_mode: "host"` for direct network access, avoiding port mapping complexity with UDP.
 
+**User/Group ID Mapping**: The container user's UID/GID are configurable via `USER_ID` and `GROUP_ID` build arguments (default: 1000). These should match your host user to prevent permission issues with mounted volumes. Run `id -u` and `id -g` to find your IDs.
+
 ## Common Commands
 
 ### Build and Deploy New Server Version
@@ -65,4 +67,4 @@ sudo docker attach minecraft
 
 Server configuration is managed through the mounted `server.properties` file at `/home/bleemus/mcdata/server.properties`. World data persists in `/home/bleemus/mcdata/worlds/`.
 
-Modify `docker-compose.yml` volume paths if data should be stored elsewhere on the host system.
+Modify `docker-compose.yml` volume paths if data should be stored elsewhere on the host system. You can customize the data path by setting the `MCDATA_PATH` environment variable (defaults to `/home/bleemus/mcdata`).

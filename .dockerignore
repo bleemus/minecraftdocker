@@ -1,0 +1,55 @@
+# Git files
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+CLAUDE.md
+*.md
+
+# Docker files (don't need these in the image)
+docker-compose.yml
+.dockerignore
+
+# Scripts (don't need these in the image)
+*.sh
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Minecraft server data (mounted as volumes, not copied)
+data/
+mcdata/
+worlds/
+server.properties
+allowlist.json
+whitelist.json
+permissions.json
+
+# Log files
+*.log
+
+# Backup files
+*.tar
+*.tar.gz
+*.zip
+*.bak
+*.backup
+
+# Temporary files
+tmp/
+temp/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
