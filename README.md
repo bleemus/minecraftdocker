@@ -24,14 +24,23 @@ A containerized Minecraft Bedrock Edition server that automatically downloads an
    cd minecraftdocker
    ```
 
-2. Create the data directory:
+2. Configure environment variables:
    ```bash
-   mkdir -p data/worlds
+   cp .env.example .env
    ```
 
-3. (Optional) Add a custom `server.properties` file to `data/` directory. If not provided, the server will generate one on first run.
+   Edit `.env` to customize paths and user/group IDs (see Configuration section below).
 
-4. Build and start the server:
+3. Create the data directory:
+   ```bash
+   mkdir -p /path/to/your/mcdata/worlds
+   ```
+
+   Replace `/path/to/your/mcdata` with the value you set for `MCDATA_PATH` in `.env`.
+
+4. (Optional) Add a custom `server.properties` file to your data directory. If not provided, the server will generate one on first run.
+
+5. Build and start the server:
    ```bash
    ./new_minecraft.sh
    ```
@@ -46,15 +55,35 @@ Edit `data/server.properties` to configure server settings (game mode, difficult
 sudo docker compose restart
 ```
 
-### Volume Paths
+### Environment Variables
 
-By default, the docker-compose.yml uses hardcoded paths at `/home/bleemus/mcdata/`. Update these paths in `docker-compose.yml` to match your setup:
+The server uses environment variables for configuration. Create a `.env` file in the project root (copy from `.env.example`):
 
-```yaml
-volumes:
-  - "/your/path/server.properties:/bedrock-server/server.properties"
-  - "/your/path/worlds/:/bedrock-server/worlds"
+```bash
+cp .env.example .env
 ```
+
+Available variables:
+
+- **MCDATA_PATH** (default: `/home/bleemus/mcdata`)
+  - Path to the directory containing server data
+  - This directory should contain `server.properties` and the `worlds/` subdirectory
+  - Example: `MCDATA_PATH=/opt/minecraft/data`
+
+- **USER_ID** and **GROUP_ID** (default: `1000`)
+  - User and group IDs for the container user
+  - Should match your host user to prevent permission issues with mounted volumes
+  - Find your IDs: `id -u` (user) and `id -g` (group)
+  - Example: `USER_ID=1001` and `GROUP_ID=1001`
+
+Example `.env` file:
+```bash
+MCDATA_PATH=/opt/minecraft/data
+USER_ID=1000
+GROUP_ID=1000
+```
+
+Changes to `.env` require rebuilding the image (for USER_ID/GROUP_ID) or restarting the container (for MCDATA_PATH)
 
 ### EULA
 
@@ -100,10 +129,11 @@ sudo docker attach minecraft
 
 ### Backup
 
-World data is stored in the mounted `worlds/` directory. To backup:
+World data is stored in the `worlds/` subdirectory of your configured MCDATA_PATH. To backup:
 
 ```bash
-tar -czf minecraft-backup-$(date +%Y%m%d).tar.gz data/worlds/
+# Replace /path/to/your/mcdata with your MCDATA_PATH value
+tar -czf minecraft-backup-$(date +%Y%m%d).tar.gz /path/to/your/mcdata/worlds/
 ```
 
 Previous Docker images are automatically tagged with the date (MMDDYY format) when running `./new_minecraft.sh`.
@@ -126,9 +156,13 @@ sudo docker ps
 ```
 
 ### Permission issues
-Ensure the data directory is accessible:
+Ensure the data directory is accessible and owned by the correct user:
 ```bash
-chmod -R 755 data/
+# Make directory accessible
+chmod -R 755 /path/to/your/mcdata
+
+# Fix ownership (use the same USER_ID/GROUP_ID from your .env file)
+sudo chown -R 1000:1000 /path/to/your/mcdata
 ```
 
 ### Port already in use
@@ -144,10 +178,12 @@ sudo netstat -tulpn | grep 19132
 ├── Dockerfile           # Container image definition
 ├── docker-compose.yml   # Service configuration
 ├── new_minecraft.sh     # Deployment script
-├── data/               # Server data (not in git)
-│   ├── server.properties
-│   └── worlds/
-└── README.md
+├── .env.example        # Example environment variables
+├── .env                # Your environment configuration (create from .env.example)
+├── README.md
+└── [MCDATA_PATH]/      # Server data (configured location, not in git)
+    ├── server.properties
+    └── worlds/
 ```
 
 ## License
