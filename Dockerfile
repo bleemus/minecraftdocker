@@ -1,18 +1,28 @@
-FROM ubuntu:latest
+FROM ubuntu:noble
 
-RUN apt-get update
-RUN apt-get install -y unzip curl wget
+RUN set -eux; \
+  apt-get update; \
+  apt-get install -y --no-install-recommends \
+    ca-certificates curl jq unzip; \
+  rm -rf /var/lib/apt/lists/*
 
-#RUN wget -O bedrock-server.zip `curl -v --silent  https://www.minecraft.net/en-us/download/server/bedrock 2>&1 | grep -o 'https://minecraft.azureedge.net/bin-linux/[^\"]*'`
-
-RUN wget -O bedrock-server.zip `wget --no-verbose -U "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)" -qO- https://minecraft.net/en-us/download/server/bedrock/ | grep -o 'https://minecraft.azureedge.net/bin-linux/[^\"]*'`
+# Scrape the official download-links API for the latest Bedrock Linux server ZIP.
+# Fallback: attempt HTML pattern scrape (less reliable if the page is fully client-rendered).
+RUN set -eux; \
+  url="$(curl -fsSL --http1.1 \
+      'https://net-secondary.web.minecraft-services.net/api/v1.0/download/links' \
+    | jq -r '.result.links[] | select(.downloadType=="serverBedrockLinux") | .downloadUrl' \
+    | head -n1)"; \
+  echo "Downloading: $url"; \
+  curl -fL --progress-bar -A 'Mozilla/5.0' -o /tmp/bedrock-server.zip "$url"; \
+  mkdir -p /bedrock-server; \
+  unzip -q /tmp/bedrock-server.zip -d /bedrock-server; \
+  rm /tmp/bedrock-server.zip
 
 EXPOSE 19132/udp
-
-RUN unzip bedrock-server.zip -d bedrock-server
-RUN rm bedrock-server.zip
 
 WORKDIR /bedrock-server
 ENV LD_LIBRARY_PATH=.
 RUN chmod +x ./bedrock_server
-CMD ./bedrock_server
+CMD ["./bedrock_server"]
+
