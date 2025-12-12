@@ -2,9 +2,6 @@ services:
   minecraft:
     build:
       context: .
-      args:
-        USER_ID: ${USER_ID:-1000}
-        GROUP_ID: ${GROUP_ID:-1000}
     image: "minecraft:latest"
     container_name: "minecraft"
     environment:
