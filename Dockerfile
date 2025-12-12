@@ -22,9 +22,20 @@ RUN set -eux; \
 ARG USER_ID=1000
 ARG GROUP_ID=1000
 
-RUN groupadd -g ${GROUP_ID} minecraft && \
-  useradd -m -u ${USER_ID} -g minecraft minecraft && \
-  chown -R minecraft:minecraft /bedrock-server
+# Create group and user, handling cases where GID/UID already exist
+RUN set -eux; \
+  # Create group if GID doesn't exist, otherwise use existing group
+  if ! getent group ${GROUP_ID} > /dev/null 2>&1; then \
+    groupadd -g ${GROUP_ID} minecraft; \
+  fi; \
+  # Get the group name for this GID
+  GROUP_NAME=$(getent group ${GROUP_ID} | cut -d: -f1); \
+  # Create user if UID doesn't exist
+  if ! getent passwd ${USER_ID} > /dev/null 2>&1; then \
+    useradd -m -u ${USER_ID} -g ${GROUP_NAME} minecraft; \
+  fi; \
+  # Ensure ownership using numeric IDs (works regardless of username/groupname)
+  chown -R ${USER_ID}:${GROUP_ID} /bedrock-server
 
 EXPOSE 19132/udp
 
@@ -32,6 +43,7 @@ WORKDIR /bedrock-server
 ENV LD_LIBRARY_PATH=.
 RUN chmod +x ./bedrock_server
 
-USER minecraft
+# Switch to user by numeric ID (works even if we reused existing user)
+USER ${USER_ID}
 CMD ["./bedrock_server"]
 
