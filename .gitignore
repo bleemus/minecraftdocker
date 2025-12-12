@@ -1,0 +1,40 @@
+# Minecraft server data
+data/
+mcdata/
+
+# Minecraft server files (if accidentally extracted locally)
+worlds/
+server.properties
+allowlist.json
+whitelist.json
+permissions.json
+valid_known_packs.json
+
+# Log files
+*.log
+
+# Docker and backup files
+*.tar
+*.tar.gz
+*.zip
+*.bak
+*.backup
+
+# Environment files
+.env
+.env.local
+
+# Temporary directories
+tmp/
+temp/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

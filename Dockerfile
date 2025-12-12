@@ -19,10 +19,15 @@ RUN set -eux; \
   unzip -q /tmp/bedrock-server.zip -d /bedrock-server; \
   rm /tmp/bedrock-server.zip
 
+RUN useradd -m -u 1000 minecraft && \
+  chown -R minecraft:minecraft /bedrock-server
+
 EXPOSE 19132/udp
 
 WORKDIR /bedrock-server
 ENV LD_LIBRARY_PATH=.
 RUN chmod +x ./bedrock_server
+
+USER minecraft
 CMD ["./bedrock_server"]
 
